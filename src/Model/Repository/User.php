@@ -8,6 +8,9 @@ use Model\Entity;
 
 class User
 {
+    protected $identityMapUser = [];
+    protected $identityMapRole = [];
+
     /**
      * Получаем пользователя по идентификатору
      *
@@ -49,14 +52,20 @@ class User
     private function createUser(array $user): Entity\User
     {
         $role = $user['role'];
+        if (!isset($this->identityMapRole[$role['id']])) {
+            $this->identityMapRole[$role['id']] = new Entity\Role($role['id'], $role['title'], $role['role']);
+        }
 
-        return new Entity\User(
+        if (!isset($this->identityMapUser[$user['id']])) {
+            $this->identityMapUser[$user['id']] = new Entity\User(
             $user['id'],
             $user['name'],
             $user['login'],
             $user['password'],
-            new Entity\Role($role['id'], $role['title'], $role['role'])
-        );
+            $this->identityMapRole[$role['id']]
+            );
+        }
+        return $this->identityMapUser[$user['id']];
     }
 
     /**
@@ -69,8 +78,8 @@ class User
     private function getDataFromSource(array $search = [])
     {
         $admin = ['id' => 1, 'title' => 'Super Admin', 'role' => 'admin'];
-        $user = ['id' => 1, 'title' => 'Main user', 'role' => 'user'];
-        $test = ['id' => 1, 'title' => 'For test needed', 'role' => 'test'];
+        $user = ['id' => 2, 'title' => 'Main user', 'role' => 'user'];
+        $test = ['id' => 3, 'title' => 'For test needed', 'role' => 'test'];
 
         $dataSource = [
             [
